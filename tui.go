@@ -1,0 +1,34 @@
+package main
+
+import (
+	//"fmt"
+	"github.com/gasiordev/go-tui"
+	//"os"
+	//"time"
+	//"strconv"
+)
+
+func getOnTUIPaneDraw(n *NTree, w *TUIWidgetTree, p *tui.TUIPane) func(*tui.TUIPane) int {
+	fn := func(x *tui.TUIPane) int {
+		cwd := n.GetCwd()
+		w.SetCwd(cwd)
+		return w.Run(x)
+	}
+	return fn
+}
+
+func NewNTreeTUI(n *NTree) *tui.TUI {
+	nTreeTUI := tui.NewTUI("Ntree", "Project tree widget", "Mikolaj Gasior")
+
+	p0 := nTreeTUI.GetPane()
+	s1 := tui.NewTUIPaneStyleFrame()
+	p0.SetStyle(s1)
+
+	w := NewTUIWidgetTree()
+	w.InitPane(p0)
+
+	p0.SetOnDraw(getOnTUIPaneDraw(n, w, p0))
+	p0.SetOnIterate(getOnTUIPaneDraw(n, w, p0))
+
+	return nTreeTUI
+}
