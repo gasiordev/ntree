@@ -9,7 +9,7 @@ import (
 func getCLIStartHandler(n *NTree) func(*cli.CLI) int {
 	fn := func(c *cli.CLI) int {
 		n.Init(c.Flag("config"))
-		return n.Start()
+		return n.Start(c.Flag("cwd"))
 	}
 
 	return fn
@@ -36,6 +36,7 @@ func NewNTreeCLI(n *NTree) *cli.CLI {
 
 	cmdStart := nTreeCLI.AddCmd("start", "Starts agent", getCLIStartHandler(n))
 	cmdStart.AddFlag("config", "Config file", cli.CLIFlagTypePathFile|cli.CLIFlagMustExist|cli.CLIFlagRequired)
+	cmdStart.AddFlag("cwd", "Directory", cli.CLIFlagTypePathFile|cli.CLIFlagRequired)
 
 	cmdSetCwd := nTreeCLI.AddCmd("set-cwd", "Set current working directory", getCLISetCwdHandler(n))
 	cmdSetCwd.AddFlag("config", "Config file", cli.CLIFlagTypePathFile|cli.CLIFlagMustExist|cli.CLIFlagRequired)

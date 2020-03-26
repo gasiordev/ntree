@@ -73,7 +73,9 @@ func (n *NTree) goAccept() {
 	}
 }
 
-func (n *NTree) Start() int {
+func (n *NTree) Start(cwd string) int {
+	n.cwd = cwd
+
 	l, err := net.Listen("unix", n.config.GetUnixSocket())
 	if err != nil {
 		log.Fatal("listen error: ", err)
@@ -104,6 +106,5 @@ func (n *NTree) SendCwd(cwd string) int {
 func (n *NTree) Run() {
 	nCLI := NewNTreeCLI(n)
 	n.cli = nCLI
-	n.cwd = "/Users/nicholas/"
 	os.Exit(nCLI.Run(os.Stdout, os.Stderr))
 }

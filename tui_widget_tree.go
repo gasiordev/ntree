@@ -2,6 +2,8 @@ package main
 
 import (
 	"github.com/gasiordev/go-tui"
+	"io/ioutil"
+    "strings"
 )
 
 type TUIWidgetTree struct {
@@ -25,7 +27,24 @@ func (w *TUIWidgetTree) InitPane(p *tui.TUIPane) {
 
 // Run is main function which just prints out the current time.
 func (w *TUIWidgetTree) Run(p *tui.TUIPane) int {
-	p.Write(0, 0, w.cwd, false)
+	fileInfo, err := ioutil.ReadDir(w.cwd)
+	if err != nil {
+		return 0
+	}
+    for i:=0; i<p.GetHeight()-p.GetStyle().H(); i++ {
+        p.Write(0, i, strings.Repeat(" ", p.GetWidth()-p.GetStyle().V()), false)
+    }
+	i := 0
+	for _, file := range fileInfo {
+		if i < p.GetHeight()-p.GetStyle().H() {
+            n := file.Name()
+            if len(n) > p.GetWidth()-p.GetStyle().V() {
+                n = n[0:p.GetWidth()-p.GetStyle().V()]
+            }
+			p.Write(0, i, n, false)
+		}
+		i++
+	}
 	return 1
 }
 
