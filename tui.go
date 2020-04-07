@@ -10,8 +10,12 @@ import (
 
 func getOnTUIPaneDraw(n *NTree, w *TUIWidgetTree, p *tui.TUIPane) func(*tui.TUIPane) int {
 	fn := func(x *tui.TUIPane) int {
-		cwd := n.GetCwd()
-		w.SetCwd(cwd)
+		w.SetWorkDir(n.GetWorkDir())
+		w.SetHideFiles(n.GetHideFiles())
+		w.SetHideDirs(n.GetHideDirs())
+		w.SetShowHidden(n.GetShowHidden())
+		w.SetFilter(n.GetFilter())
+		w.SetHighlight(n.GetHighlight())
 		return w.Run(x)
 	}
 	return fn
