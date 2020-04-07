@@ -176,6 +176,14 @@ func (n *NTree) goAccept() {
 func (n *NTree) Start(workDir string) int {
 	n.workDir = workDir
 
+	i, err := os.Stat(n.config.GetUnixSocket())
+	if i.Mode()&os.ModeSocket != 0 {
+		err = os.Remove(n.config.GetUnixSocket())
+		if err != nil {
+			log.Fatal("socket file rm error: ", err)
+		}
+	}
+
 	l, err := net.Listen("unix", n.config.GetUnixSocket())
 	if err != nil {
 		log.Fatal("listen error: ", err)
@@ -187,42 +195,6 @@ func (n *NTree) Start(workDir string) int {
 	t := NewNTreeTUI(n)
 	n.tui = t
 	return t.Run(os.Stdout, os.Stderr)
-}
-
-func (n *NTree) SendWorkDir(workDir string) int {
-	return n.SendCmd("WORKDIR", workDir)
-}
-
-func (n *NTree) SendFilter(filter string) int {
-	return n.SendCmd("FILTER", filter)
-}
-
-func (n *NTree) SendHighlight(highlight string) int {
-	return n.SendCmd("HIGHLIGHT", highlight)
-}
-
-func (n *NTree) SendToggleDirs() int {
-	return n.SendCmd("DIRS", "")
-}
-
-func (n *NTree) SendToggleFiles() int {
-	return n.SendCmd("FILES", "")
-}
-
-func (n *NTree) SendToggleFreeze() int {
-	return n.SendCmd("FREEZE", "")
-}
-
-func (n *NTree) SendToggleHidden() int {
-	return n.SendCmd("HIDDEN", "")
-}
-
-func (n *NTree) SendResetFilter() int {
-	return n.SendCmd("RESET-FILTER", "")
-}
-
-func (n *NTree) SendResetHighlight() int {
-	return n.SendCmd("RESET-HIGHLIGHT", "")
 }
 
 func (n *NTree) SendCmd(cmd string, val string) int {
