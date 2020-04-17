@@ -177,7 +177,7 @@ func (n *NTree) Start(workDir string) int {
 	n.workDir = workDir
 
 	i, err := os.Stat(n.config.GetUnixSocket())
-	if i.Mode()&os.ModeSocket != 0 {
+	if err == nil && (i.Mode()&os.ModeSocket != 0) {
 		err = os.Remove(n.config.GetUnixSocket())
 		if err != nil {
 			log.Fatal("socket file rm error: ", err)
