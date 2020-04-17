@@ -15,6 +15,7 @@ type NTree struct {
 	cli        *cli.CLI
 	listener   net.Listener
 	tui        *tui.TUI
+	rootDir    string
 	workDir    string
 	filter     string
 	highlight  string
@@ -39,6 +40,10 @@ func (n *NTree) GetCLI() *cli.CLI {
 
 func (n *NTree) GetListener() net.Listener {
 	return n.listener
+}
+
+func (n *NTree) GetRootDir() string {
+	return n.rootDir
 }
 
 func (n *NTree) GetWorkDir() string {
@@ -122,7 +127,12 @@ func (n *NTree) goReadData(c net.Conn) {
 
 		data := buf[0:nr]
 
-		m, err := regexp.Match(`^WORKDIR .+`, data)
+		m, err := regexp.Match(`^ROOTDIR .+`, data)
+		if m && !n.freeze {
+			n.rootDir = string(buf[8:nr])
+			continue
+		}
+		m, err = regexp.Match(`^WORKDIR .+`, data)
 		if m && !n.freeze {
 			n.workDir = string(buf[8:nr])
 			continue
@@ -173,7 +183,8 @@ func (n *NTree) goAccept() {
 	}
 }
 
-func (n *NTree) Start(workDir string) int {
+func (n *NTree) Start(rootDir string, workDir string) int {
+	n.rootDir = rootDir
 	n.workDir = workDir
 
 	i, err := os.Stat(n.config.GetUnixSocket())

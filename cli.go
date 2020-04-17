@@ -23,7 +23,7 @@ func getCLIStartHandler(n *NTree) func(*cli.CLI) int {
 	fn := func(c *cli.CLI) int {
 		f := getConfigFilePath(c)
 		n.Init(f)
-		return n.Start(c.Flag("workdir"))
+		return n.Start(c.Flag("rootdir"), c.Flag("workdir"))
 	}
 
 	return fn
@@ -51,7 +51,8 @@ func NewNTreeCLI(n *NTree) *cli.CLI {
 
 	cmdStart := nTreeCLI.AddCmd("start", "Starts agent", getCLIStartHandler(n))
 	cmdStart.AddFlag("config", "c", "file", "Config file", cli.TypePathFile|cli.MustExist)
-	cmdStart.AddFlag("workdir", "w", "dir", "Directory", cli.TypePathFile|cli.Required)
+	cmdStart.AddFlag("workdir", "w", "dir", "Working directory", cli.TypePathFile|cli.Required)
+	cmdStart.AddFlag("rootdir", "r", "dir", "Root directory", cli.TypePathFile|cli.Required)
 
 	cmdMsg := nTreeCLI.AddCmd("send", "Sends command to already running agent", getCLISendHandler(n))
 	cmdMsg.AddFlag("config", "c", "file", "Config file", cli.TypePathFile|cli.MustExist)
