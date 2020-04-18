@@ -89,7 +89,7 @@ func (w *TUIWidgetTree) clearBox(p *tui.TUIPane) {
 	}
 }
 
-func (w *TUIWidgetTree) substrNameToWidth(s string, i int) string {
+func (w *TUIWidgetTree) substrName(s string, i int) string {
 	if len(s) > i {
 		s = s[0:i]
 	}
@@ -107,10 +107,14 @@ func (w *TUIWidgetTree) getHighlightAnsiCode(n string) string {
 	return h
 }
 
-func (w *TUIWidgetTree) addColorAnsiCodes(n string, h string, f os.FileInfo) string {
+func (w *TUIWidgetTree) addColorAnsiCodes(n string, h string, cmp int, f os.FileInfo) string {
 	c := ""
 	if f.Mode().IsDir() {
-		c = "\u001b[33" + h + n + "\u001b[0m"
+        if cmp > -1 {
+            c = "\u001b[37" + h + n + "\u001b[0m"
+        } else {
+		    c = "\u001b[33" + h + n + "\u001b[0m"
+        }
 	} else if f.Mode()&os.ModeSymlink != 0 {
 		c = "\u001b[36" + h + n + "\u001b[0m"
 	} else if f.Mode().IsRegular() {
@@ -141,43 +145,67 @@ func (w *TUIWidgetTree) isMatchFilters(n string, f os.FileInfo) bool {
 	return t
 }
 
-func (w *TUIWidgetTree) printDir(p *tui.TUIPane, fs []os.FileInfo, depth int) {
-	i := 0
-	cntDisplayed := 0
-	cntHidden := 1
+func (w *TUIWidgetTree) getFileDetails(file os.FileInfo, rootPath string, substrValue int, colours bool) (string, string, string, int, bool) {
+    name := file.Name()
+    path := filepath.Join(w.rootDir, rootPath, name)
+    substr := w.substrName(name, substrValue)
+    cmp := w.comparePaths(path, w.workDir)
+
+    if colours {
+        hl := w.getHighlightAnsiCode(name)
+        substr = w.addColorAnsiCodes(substr, hl, cmp, file)
+    }
+
+    filters := w.isMatchFilters(name, file)
+
+    return name, path, substr, cmp, filters
+}
+
+func (w *TUIWidgetTree) printDir(p *tui.TUIPane, fs []os.FileInfo, rootPath string, depth int, displayed int) (int) {
+	cntDisplayed := displayed
 
 	availableWidth := p.GetWidth() - p.GetStyle().V() - depth
+    availableHeight := p.GetHeight()-p.GetStyle().H() - depth
 
-	for _, file := range fs {
-		origN := file.Name()
-		n := w.substrNameToWidth(origN, availableWidth)
-		hl := w.getHighlightAnsiCode(origN)
-		n = w.addColorAnsiCodes(n, hl, file)
-		if w.isMatchFilters(origN, file) {
-			if cntDisplayed < p.GetHeight()-p.GetStyle().H() {
-				p.Write(0, cntDisplayed, strings.Repeat(" ", depth)+n, false)
+	for i, file := range fs {
+        fileName, filePath, fileDisplayName, fileCmp, fileMatchFilters := w.getFileDetails(file, rootPath, availableWidth, true)
+
+		if fileMatchFilters || fileCmp > -1 {
+			if cntDisplayed < availableHeight {
+                hiddenDisplay := ""
+                if cntDisplayed+1 == availableHeight && i+1 < len(fs) {
+                    hiddenDisplay = " +" + strconv.Itoa(len(fs)-i-1)
+                }
+
+				p.Write(0, cntDisplayed, strings.Repeat(" ", depth) + fileDisplayName + hiddenDisplay, false)
 				cntDisplayed++
-			} else {
-				cntHidden++
+
+                if fileCmp > -1 {
+                    fileInfo, err := ioutil.ReadDir(filePath)
+                    if err == nil {
+                        subDisplayed := w.printDir(p, fileInfo, filepath.Join(rootPath, fileName), depth + 1, cntDisplayed)
+                        cntDisplayed = subDisplayed
+                    }
+                }
+
 			}
 		}
-		i++
 	}
-	if cntHidden > 1 {
-		p.Write(0, p.GetHeight()-p.GetStyle().H()-1, strings.Repeat(" ", p.GetWidth()-p.GetStyle().V()), false)
-		p.Write(0, p.GetHeight()-p.GetStyle().H()-1, "... and other "+strconv.Itoa(cntHidden), false)
-	}
-
+	/*if cntHidden > 1 {
+		p.Write(0, availableHeight-1, strings.Repeat(" ", availableWidth + depth), false)
+		p.Write(0, availableHeight-1, "... and other "+strconv.Itoa(cntHidden), false)
+	}*/
+    return cntDisplayed
 }
 
 // Run is main function which just prints out the current time.
 func (w *TUIWidgetTree) Run(p *tui.TUIPane) int {
-	fileInfo, err := ioutil.ReadDir(w.workDir)
+	fileInfo, err := ioutil.ReadDir(w.rootDir)
 	if err != nil {
 		return 0
 	}
 	w.clearBox(p)
-	w.printDir(p, fileInfo, 0)
+	w.printDir(p, fileInfo, "", 0, 0)
 	return 1
 }
 
