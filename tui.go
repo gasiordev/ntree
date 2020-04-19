@@ -1,11 +1,7 @@
 package main
 
 import (
-	//"fmt"
 	"github.com/gasiordev/go-tui"
-	//"os"
-	//"time"
-	//"strconv"
 )
 
 func getOnTUIPaneDraw(n *NTree, w *TUIWidgetTree, p *tui.TUIPane) func(*tui.TUIPane) int {
@@ -26,7 +22,7 @@ func NewNTreeTUI(n *NTree) *tui.TUI {
 	nTreeTUI := tui.NewTUI("Ntree", "Project tree widget", "Mikolaj Gasior")
 
 	p0 := nTreeTUI.GetPane()
-	s1 := tui.NewTUIPaneStyleFrame()
+	s1 := tui.NewTUIPaneStyleNone()
 	p0.SetStyle(s1)
 
 	w := NewTUIWidgetTree()

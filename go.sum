@@ -1,6 +1,4 @@
-github.com/gasiordev/go-cli v0.1.4 h1:ZwIn2McgPQQHdf5K7znJd7XZtO7YA272YXsnrWIwQak=
-github.com/gasiordev/go-cli v0.1.4/go.mod h1:VZ6BIiPQxdXRZ10tV9k9020p5zRWGh4jH+DWkEy2md0=
 github.com/gasiordev/go-cli v0.3.1 h1:/tu2xIY5k9rmZXdohCCA9UfzJfX0v6cHUZpz+hvOmPk=
 github.com/gasiordev/go-cli v0.3.1/go.mod h1:GnvFwg2MTY5B+5+wILRS7p+UVNSy0uYns+PERZQwO8g=
-github.com/gasiordev/go-tui v0.1.1 h1:otJu0hR3aYTrPxRBFctaVDQZ/EHc2t0TGhy3OBGCiFE=
-github.com/gasiordev/go-tui v0.1.1/go.mod h1:I71RrzgHl0OJx4QXgbZOoWhPZgvciexibnjQNTSrnrY=
+github.com/gasiordev/go-tui v0.1.2 h1:nIHAhilOV8/aL/zVtLV5u1etV+PXx7vqdFrkHllFYIs=
+github.com/gasiordev/go-tui v0.1.2/go.mod h1:hyjngtriPFRo8fta3s3p3sGlpw5mJId1Ou0qFu74jMc=
