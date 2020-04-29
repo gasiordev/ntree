@@ -8,6 +8,7 @@ import (
 	"net"
 	"os"
 	"regexp"
+	"strconv"
 )
 
 type NTree struct {
@@ -204,6 +205,16 @@ func (n *NTree) Start(rootDir string, workDir string) int {
 	go n.goAccept()
 
 	t := NewNTreeTUI(n)
+
+	ls, err := strconv.Atoi(n.config.GetLoopSleep())
+	if err != nil {
+		log.Fatal("loop_sleep has invalid value")
+	}
+	if ls < 0 {
+		ls = 1000
+	}
+
+	t.SetLoopSleep(ls)
 	n.tui = t
 	return t.Run(os.Stdout, os.Stderr)
 }

@@ -1,4 +1,4 @@
 {
-  "loop_sleep": "1",
+  "loop_sleep": "3000",
   "unix_socket": "/tmp/ntree.sock"
 }

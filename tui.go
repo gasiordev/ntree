@@ -18,8 +18,21 @@ func getOnTUIPaneDraw(n *NTree, w *TUIWidgetTree, p *tui.TUIPane) func(*tui.TUIP
 	return fn
 }
 
+func getOnTUIKeyPress(n *NTree) func(*tui.TUI, []byte) {
+	fn := func(x *tui.TUI, b []byte) {
+		ch := string(b)
+		if ch == "q" || ch == "Q" {
+			x.Exit(0)
+		}
+		//fmt.Println("Ich habe ein byte", b, "("+string(b)+")")
+	}
+	return fn
+}
+
 func NewNTreeTUI(n *NTree) *tui.TUI {
 	nTreeTUI := tui.NewTUI("Ntree", "Project tree widget", "Mikolaj Gasior")
+
+	nTreeTUI.SetOnKeyPress(getOnTUIKeyPress(n))
 
 	p0 := nTreeTUI.GetPane()
 	s1 := tui.NewTUIPaneStyleNone()
