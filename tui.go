@@ -24,7 +24,19 @@ func getOnTUIKeyPress(n *NTree) func(*tui.TUI, []byte) {
 		if ch == "q" || ch == "Q" {
 			x.Exit(0)
 		}
-		//fmt.Println("Ich habe ein byte", b, "("+string(b)+")")
+		if ch == "r" || ch == "R" {
+			n.ResetFilter()
+			n.ResetHighlight()
+		}
+		if ch == "d" || ch == "D" {
+			n.ToggleHideDirs()
+		}
+		if ch == "f" || ch == "F" {
+			n.ToggleHideFiles()
+		}
+		if ch == "h" || ch == "H" {
+			n.ToggleShowHidden()
+		}
 	}
 	return fn
 }

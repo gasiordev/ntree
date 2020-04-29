@@ -75,7 +75,7 @@ func (n *NTree) GetFreeze() bool {
 	return n.freeze
 }
 
-func (n *NTree) toggleHideDirs() {
+func (n *NTree) ToggleHideDirs() {
 	if n.hideDirs {
 		n.hideDirs = false
 	} else {
@@ -83,7 +83,7 @@ func (n *NTree) toggleHideDirs() {
 	}
 }
 
-func (n *NTree) toggleHideFiles() {
+func (n *NTree) ToggleHideFiles() {
 	if n.hideFiles {
 		n.hideFiles = false
 	} else {
@@ -99,12 +99,20 @@ func (n *NTree) toggleFreeze() {
 	}
 }
 
-func (n *NTree) toggleShowHidden() {
+func (n *NTree) ToggleShowHidden() {
 	if n.showHidden {
 		n.showHidden = false
 	} else {
 		n.showHidden = true
 	}
+}
+
+func (n *NTree) ResetFilter() {
+	n.filter = ""
+}
+
+func (n *NTree) ResetHighlight() {
+	n.highlight = ""
 }
 
 func (n *NTree) Init(cfgFile string) {
@@ -149,23 +157,24 @@ func (n *NTree) goReadData(c net.Conn) {
 			continue
 		}
 		if string(data) == "DIRS" && !n.freeze {
-			n.toggleHideDirs()
+			n.ToggleHideDirs()
 			continue
 		}
 		if string(data) == "FILES" && !n.freeze {
-			n.toggleHideFiles()
+			n.ToggleHideFiles()
 			continue
 		}
 		if string(data) == "HIDDEN" && !n.freeze {
-			n.toggleShowHidden()
+			n.ToggleShowHidden()
 			continue
 		}
 		if string(data) == "RESET-FILTER" && !n.freeze {
-			n.filter = ""
+			n.ResetFilter()
 			continue
 		}
 		if string(data) == "RESET-HIGHLIGHT" && !n.freeze {
-			n.highlight = ""
+			n.ResetHighlight()
+			continue
 		}
 		if string(data) == "FREEZE" {
 			n.toggleFreeze()
