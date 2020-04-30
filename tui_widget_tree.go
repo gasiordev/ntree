@@ -191,10 +191,6 @@ func (w *TUIWidgetTree) printDir(p *tui.TUIPane, fs []os.FileInfo, rootPath stri
 			}
 		}
 	}
-	/*if cntHidden > 1 {
-		p.Write(0, availableHeight-1, strings.Repeat(" ", availableWidth + depth), false)
-		p.Write(0, availableHeight-1, "... and other "+strconv.Itoa(cntHidden), false)
-	}*/
 	return cntDisplayed
 }
 
