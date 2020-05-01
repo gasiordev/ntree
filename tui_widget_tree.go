@@ -188,33 +188,66 @@ func (w *TUIWidgetTree) getWorkDirDepthCounts(depthCounts *[]int, maxDepth *int,
 	}
 }
 
-func (w *TUIWidgetTree) printDir(p *tui.TUIPane, fs []os.FileInfo, rootPath string, depth int, displayed int) int {
+func (w *TUIWidgetTree) printDir(p *tui.TUIPane, fs []os.FileInfo, rootPath string, depth int, displayed int, depthCounts []int, maxDepth int) int {
 	cntDisplayed := displayed
 
 	availableWidth := p.GetWidth() - p.GetStyle().V() - depth
 	availableHeight := p.GetHeight() - p.GetStyle().H() - depth
 
+	depthCountSum := 0
+	if depth < maxDepth {
+		for j := depth+1; j <= maxDepth; j++ {
+			depthCountSum += depthCounts[j]
+		}
+	}
+
+	workDirOpened := false
+	cntBefore := 0
+	cntAfter := 0
+
 	for i, file := range fs {
 		fileName, filePath, fileDisplayName, fileCmp, fileMatchFilters := w.getFileDetails(file, rootPath, availableWidth, true)
 
-		if fileMatchFilters || fileCmp > -1 {
+		if !fileMatchFilters {
+			continue
+		}
+
+		if depth == maxDepth {
 			if cntDisplayed < availableHeight {
-				hiddenDisplay := ""
-				if cntDisplayed+1 == availableHeight && i+1 < len(fs) {
-					hiddenDisplay = " +" + strconv.Itoa(len(fs)-i-1)
-				}
-
-				p.Write(0, cntDisplayed, strings.Repeat(" ", depth)+fileDisplayName+hiddenDisplay, false)
+				p.Write(0, cntDisplayed, strings.Repeat(" ", depth)+fileDisplayName, false)
 				cntDisplayed++
-
-				if fileCmp > -1 {
-					fileInfo, err := ioutil.ReadDir(filePath)
-					if err == nil {
-						subDisplayed := w.printDir(p, fileInfo, filepath.Join(rootPath, fileName), depth+1, cntDisplayed)
-						cntDisplayed = subDisplayed
+				cntAfter++
+			}
+		} else {
+			if cntDisplayed < availableHeight {
+				if workDirOpened || fileCmp > -1 {
+					if fileCmp > -1 && cntBefore > 0 {
+						p.Write(0, cntDisplayed, strings.Repeat(" ", depth)+"("+strconv.Itoa(cntBefore)+")... "+fileDisplayName, false)
+					} else {
+						if cntDisplayed+1 == availableHeight && i+1 < len(fs) {
+							p.Write(0, cntDisplayed, strings.Repeat(" ", depth)+fileDisplayName+" ...("+strconv.Itoa(len(fs)-i-1)+")", false)
+						} else {
+							p.Write(0, cntDisplayed, strings.Repeat(" ", depth)+fileDisplayName, false)
+						}
+					}
+					cntDisplayed++
+					cntAfter++
+				} else {
+					if cntDisplayed + depthCountSum < availableHeight {
+						p.Write(0, cntDisplayed, strings.Repeat(" ", depth)+fileDisplayName, false)
+						cntDisplayed++
+						cntBefore++
 					}
 				}
+			}
+		}
 
+		if fileCmp > -1 {
+			fileInfo, err := ioutil.ReadDir(filePath)
+			if err == nil {
+				subDisplayed := w.printDir(p, fileInfo, filepath.Join(rootPath, fileName), depth+1, cntDisplayed, depthCounts, maxDepth)
+				cntDisplayed = subDisplayed
+				workDirOpened = true
 			}
 		}
 	}
@@ -233,8 +266,7 @@ func (w *TUIWidgetTree) Run(p *tui.TUIPane) int {
 	w.getWorkDirDepthCounts(&depthCounts, &maxDepth, p, fileInfo, "", 0)
 
 	w.clearBox(p)
-	p.Write(50, 0, strconv.Itoa(maxDepth) + "|" + strconv.Itoa(depthCounts[0]) + " " + strconv.Itoa(depthCounts[1]) + " " + strconv.Itoa(depthCounts[2]) + " " + strconv.Itoa(depthCounts[3]) + " " + strconv.Itoa(depthCounts[4]), false)
-	w.printDir(p, fileInfo, "", 0, 0)
+	w.printDir(p, fileInfo, "", 0, 0, depthCounts, maxDepth)
 	return 1
 }
 
