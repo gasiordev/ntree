@@ -161,6 +161,33 @@ func (w *TUIWidgetTree) getFileDetails(file os.FileInfo, rootPath string, substr
 	return name, path, substr, cmp, filters
 }
 
+func (w *TUIWidgetTree) getWorkDirDepth() int {
+	return len(strings.Split(w.workDir, "/"))
+}
+
+func (w *TUIWidgetTree) getWorkDirDepthCounts(depthCounts *[]int, maxDepth *int, p *tui.TUIPane, fs []os.FileInfo, rootPath string, depth int) {
+
+	availableWidth := p.GetWidth() - p.GetStyle().V() - depth
+
+	cnt := 0
+	for _, file := range fs {
+		fileName, filePath, _, fileCmp, fileMatchFilters := w.getFileDetails(file, rootPath, availableWidth, true)
+		if fileMatchFilters || fileCmp > -1 {
+			cnt++
+			if fileCmp > -1 {
+				fileInfo, err := ioutil.ReadDir(filePath)
+				if err == nil {
+					w.getWorkDirDepthCounts(depthCounts, maxDepth, p, fileInfo, filepath.Join(rootPath, fileName), depth+1)
+				}
+			}
+		}
+	}
+	(*depthCounts)[depth] = cnt
+	if depth > *maxDepth {
+		*maxDepth = depth
+	}
+}
+
 func (w *TUIWidgetTree) printDir(p *tui.TUIPane, fs []os.FileInfo, rootPath string, depth int, displayed int) int {
 	cntDisplayed := displayed
 
@@ -200,7 +227,13 @@ func (w *TUIWidgetTree) Run(p *tui.TUIPane) int {
 	if err != nil {
 		return 0
 	}
+
+	depthCounts := make([]int, 30)
+	maxDepth := 0
+	w.getWorkDirDepthCounts(&depthCounts, &maxDepth, p, fileInfo, "", 0)
+
 	w.clearBox(p)
+	p.Write(50, 0, strconv.Itoa(maxDepth) + "|" + strconv.Itoa(depthCounts[0]) + " " + strconv.Itoa(depthCounts[1]) + " " + strconv.Itoa(depthCounts[2]) + " " + strconv.Itoa(depthCounts[3]) + " " + strconv.Itoa(depthCounts[4]), false)
 	w.printDir(p, fileInfo, "", 0, 0)
 	return 1
 }
