@@ -4,6 +4,7 @@ import (
 	"github.com/gasiordev/go-tui"
 )
 
+// getOnTUIPaneDraw returns fn that is called when main pane is getting redrawn
 func getOnTUIPaneDraw(n *NTree, w *TUIWidgetTree, p *tui.TUIPane) func(*tui.TUIPane) int {
 	fn := func(x *tui.TUIPane) int {
 		w.SetRootDir(n.GetRootDir())
@@ -18,6 +19,8 @@ func getOnTUIPaneDraw(n *NTree, w *TUIWidgetTree, p *tui.TUIPane) func(*tui.TUIP
 	return fn
 }
 
+// getOnTUIKeyPress returns fn that handles key press event when ntree app
+// is running
 func getOnTUIKeyPress(n *NTree) func(*tui.TUI, []byte) {
 	fn := func(x *tui.TUI, b []byte) {
 		ch := string(b)
@@ -41,6 +44,8 @@ func getOnTUIKeyPress(n *NTree) func(*tui.TUI, []byte) {
 	return fn
 }
 
+// NewNTreeTUI creates TUI instance, initialises it with specific handlers
+// and returns it
 func NewNTreeTUI(n *NTree) *tui.TUI {
 	nTreeTUI := tui.NewTUI("Ntree", "Project tree widget", "Mikolaj Gasior")
 

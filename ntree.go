@@ -75,6 +75,7 @@ func (n *NTree) GetFreeze() bool {
 	return n.freeze
 }
 
+// ToggleHideDirs switches between directories hidden or visible
 func (n *NTree) ToggleHideDirs() {
 	if n.hideDirs {
 		n.hideDirs = false
@@ -83,6 +84,7 @@ func (n *NTree) ToggleHideDirs() {
 	}
 }
 
+// ToggleHideFiles switches between files hidden or visible
 func (n *NTree) ToggleHideFiles() {
 	if n.hideFiles {
 		n.hideFiles = false
@@ -91,6 +93,7 @@ func (n *NTree) ToggleHideFiles() {
 	}
 }
 
+// ToggleFreeze toggle the freeze
 func (n *NTree) toggleFreeze() {
 	if n.freeze {
 		n.freeze = false
@@ -99,6 +102,7 @@ func (n *NTree) toggleFreeze() {
 	}
 }
 
+// ToggleShowHidden switches whether hidden files should be visible or not
 func (n *NTree) ToggleShowHidden() {
 	if n.showHidden {
 		n.showHidden = false
@@ -107,14 +111,17 @@ func (n *NTree) ToggleShowHidden() {
 	}
 }
 
+// ResetFilter resets the filter string
 func (n *NTree) ResetFilter() {
 	n.filter = ""
 }
 
+// ResetHighlight resets the string that is supposed to be highlighted
 func (n *NTree) ResetHighlight() {
 	n.highlight = ""
 }
 
+// Init reads the configuration file
 func (n *NTree) Init(cfgFile string) {
 	cfgJSON, err := ioutil.ReadFile(cfgFile)
 	if err != nil {
@@ -126,6 +133,7 @@ func (n *NTree) Init(cfgFile string) {
 	n.config = cfg
 }
 
+// goReadData reads and parses incoming data on unix socket
 func (n *NTree) goReadData(c net.Conn) {
 	for {
 		buf := make([]byte, 512)
@@ -182,6 +190,7 @@ func (n *NTree) goReadData(c net.Conn) {
 	}
 }
 
+// goAccept accepts incoming connections on socket listener
 func (n *NTree) goAccept() {
 	for {
 		fd, err := n.listener.Accept()
@@ -193,6 +202,8 @@ func (n *NTree) goAccept() {
 	}
 }
 
+// Start is called to start the application, it initialises the unix socket,
+// creates TUI instance and runs it
 func (n *NTree) Start(rootDir string, workDir string) int {
 	n.rootDir = rootDir
 	n.workDir = workDir
@@ -228,6 +239,7 @@ func (n *NTree) Start(rootDir string, workDir string) int {
 	return t.Run(os.Stdout, os.Stderr)
 }
 
+// SendCmd sends specific command with its value to already running ntree
 func (n *NTree) SendCmd(cmd string, val string) int {
 	c, err := net.Dial("unix", n.config.GetUnixSocket())
 	if err != nil {
@@ -247,6 +259,7 @@ func (n *NTree) SendCmd(cmd string, val string) int {
 	return 1
 }
 
+// Run is called to start the application, it creates the main CLI instance
 func (n *NTree) Run() {
 	nCLI := NewNTreeCLI(n)
 	n.cli = nCLI

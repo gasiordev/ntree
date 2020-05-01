@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+// getConfigFilePath returns path to config file that should be used
 func getConfigFilePath(c *cli.CLI) string {
 	h, err := os.UserHomeDir()
 	if err != nil {
@@ -19,6 +20,7 @@ func getConfigFilePath(c *cli.CLI) string {
 	return f
 }
 
+// getCLIStartHandler returns fn that starts ntree application
 func getCLIStartHandler(n *NTree) func(*cli.CLI) int {
 	fn := func(c *cli.CLI) int {
 		f := getConfigFilePath(c)
@@ -29,6 +31,8 @@ func getCLIStartHandler(n *NTree) func(*cli.CLI) int {
 	return fn
 }
 
+// getCLISendHandler returns fn sends command (with its value) to running
+// ntree instance
 func getCLISendHandler(n *NTree) func(*cli.CLI) int {
 	fn := func(c *cli.CLI) int {
 		f := getConfigFilePath(c)
@@ -38,6 +42,7 @@ func getCLISendHandler(n *NTree) func(*cli.CLI) int {
 	return fn
 }
 
+// getCLIVersionHandler returns fn that prints out version number
 func getCLIVersionHandler(n *NTree) func(*cli.CLI) int {
 	fn := func(c *cli.CLI) int {
 		fmt.Fprintf(os.Stdout, VERSION+"\n")
@@ -46,6 +51,7 @@ func getCLIVersionHandler(n *NTree) func(*cli.CLI) int {
 	return fn
 }
 
+// NewNTreeCLI creates new CLI instance for our application
 func NewNTreeCLI(n *NTree) *cli.CLI {
 	nTreeCLI := cli.NewCLI("Ntree", "Project tree widget", "Mikolaj Gasior")
 

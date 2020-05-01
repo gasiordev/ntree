@@ -28,6 +28,7 @@ func (w *TUIWidgetTree) GetWorkDir() string {
 	return w.workDir
 }
 
+// comparePaths checks if two paths are the same or one is part of another
 func (w *TUIWidgetTree) comparePaths(p1 string, p2 string) int {
 	if p1 == p2 {
 		return 0
@@ -83,6 +84,7 @@ func (w *TUIWidgetTree) InitPane(p *tui.TUIPane) {
 	p.SetMinHeight(3)
 }
 
+// clearBox clears the pane (fills it with spaces)
 func (w *TUIWidgetTree) clearBox(p *tui.TUIPane) {
 	for i := 0; i < p.GetHeight()-p.GetStyle().H(); i++ {
 		p.Write(0, i, strings.Repeat(" ", p.GetWidth()-p.GetStyle().V()), false)
@@ -96,6 +98,9 @@ func (w *TUIWidgetTree) substrName(s string, i int) string {
 	return s
 }
 
+// getHighlightAnsiCode checks for highlight value, compares it with given
+// value and if string should be highlighted then returns an apropriate
+// ANSI code
 func (w *TUIWidgetTree) getHighlightAnsiCode(n string) string {
 	h := "m"
 	if w.highlight != "" {
@@ -107,6 +112,7 @@ func (w *TUIWidgetTree) getHighlightAnsiCode(n string) string {
 	return h
 }
 
+// addColorAnsiCodes adds look to file name depending on its type
 func (w *TUIWidgetTree) addColorAnsiCodes(n string, h string, cmp int, f os.FileInfo) string {
 	c := ""
 	if f.Mode().IsDir() {
@@ -125,6 +131,7 @@ func (w *TUIWidgetTree) addColorAnsiCodes(n string, h string, cmp int, f os.File
 	return c
 }
 
+// isMatchFilters checks if file matches filters and shouldn't be hidden
 func (w *TUIWidgetTree) isMatchFilters(n string, f os.FileInfo) bool {
 	t := true
 	if f.IsDir() && w.hideDirs {
@@ -145,6 +152,8 @@ func (w *TUIWidgetTree) isMatchFilters(n string, f os.FileInfo) bool {
 	return t
 }
 
+// getFileDetails takes file and returns its various details. Function is used
+// when iterating a directory
 func (w *TUIWidgetTree) getFileDetails(file os.FileInfo, rootPath string, substrValue int, colours bool) (string, string, string, int, bool) {
 	name := file.Name()
 	path := filepath.Join(w.rootDir, rootPath, name)
@@ -161,10 +170,8 @@ func (w *TUIWidgetTree) getFileDetails(file os.FileInfo, rootPath string, substr
 	return name, path, substr, cmp, filters
 }
 
-func (w *TUIWidgetTree) getWorkDirDepth() int {
-	return len(strings.Split(w.workDir, "/"))
-}
-
+// getWorkDirDepthCounts walks through work dir and counts its files (and dirs)
+// that will be displayed (so checks if they match any filters etc.)
 func (w *TUIWidgetTree) getWorkDirDepthCounts(depthCounts *[]int, maxDepth *int, p *tui.TUIPane, fs []os.FileInfo, rootPath string, depth int) {
 
 	availableWidth := p.GetWidth() - p.GetStyle().V() - depth
@@ -188,12 +195,15 @@ func (w *TUIWidgetTree) getWorkDirDepthCounts(depthCounts *[]int, maxDepth *int,
 	}
 }
 
+// printDir iterates over directory items, filters them and prints out things
+// onto screen. It's called recursively. Main logic is here.
 func (w *TUIWidgetTree) printDir(p *tui.TUIPane, fs []os.FileInfo, rootPath string, depth int, displayed int, depthCounts []int, maxDepth int) int {
 	cntDisplayed := displayed
 
 	availableWidth := p.GetWidth() - p.GetStyle().V() - depth
 	availableHeight := p.GetHeight() - p.GetStyle().H() - depth
 
+	// sum up items in all subdirectories
 	depthCountSum := 0
 	if depth < maxDepth {
 		for j := depth + 1; j <= maxDepth; j++ {
@@ -201,18 +211,20 @@ func (w *TUIWidgetTree) printDir(p *tui.TUIPane, fs []os.FileInfo, rootPath stri
 		}
 	}
 
-	workDirOpened := false
-	cntBefore := 0
-	cntAfter := 0
+	workDirOpened := false // have we already iterated through directory from work dir
+	cntBefore := 0         // number of items before work dir
+	cntAfter := 0          // number of items after work dir
 
 	j := 0
 	for i, file := range fs {
 		fileName, filePath, fileDisplayName, fileCmp, fileMatchFilters := w.getFileDetails(file, rootPath, availableWidth, true)
 
+		// ignore files that do not match filter or should be hidden (hide files, show hidden, hide dirs etc.)
 		if !fileMatchFilters {
 			continue
 		}
 
+		// if we are in the last directory from work dir then print all the items
 		if depth == maxDepth {
 			if cntDisplayed < availableHeight {
 				p.Write(0, cntDisplayed, strings.Repeat(" ", depth)+fileDisplayName, false)
@@ -221,10 +233,13 @@ func (w *TUIWidgetTree) printDir(p *tui.TUIPane, fs []os.FileInfo, rootPath stri
 			}
 		} else {
 			if cntDisplayed < availableHeight {
+				// if directory that is part of work dir was already printed or it is that directory then we can print
 				if workDirOpened || fileCmp > -1 {
+					// if it's dir on the work dir path and there were files in this directory that were not displayed, let's prepend the filename with number of them
 					if fileCmp > -1 && j-cntBefore > 0 {
 						p.Write(0, cntDisplayed, strings.Repeat(" ", depth)+"("+strconv.Itoa(j-cntBefore)+")... "+fileDisplayName, false)
 					} else {
+						// if there is no place to print more directories but still there are some, let's append number of them at the end of filename
 						if cntDisplayed+1 == availableHeight && i+1 < len(fs) {
 							p.Write(0, cntDisplayed, strings.Repeat(" ", depth)+fileDisplayName+" ...("+strconv.Itoa(len(fs)-i-1)+")", false)
 						} else {
@@ -234,6 +249,7 @@ func (w *TUIWidgetTree) printDir(p *tui.TUIPane, fs []os.FileInfo, rootPath stri
 					cntDisplayed++
 					cntAfter++
 				} else {
+					// if we can display the file, let's do that
 					if cntDisplayed+depthCountSum < availableHeight {
 						p.Write(0, cntDisplayed, strings.Repeat(" ", depth)+fileDisplayName, false)
 						cntDisplayed++
@@ -243,6 +259,7 @@ func (w *TUIWidgetTree) printDir(p *tui.TUIPane, fs []os.FileInfo, rootPath stri
 			}
 		}
 
+		// if the directory is on work dir path, open it and print out its contents
 		if fileCmp > -1 {
 			fileInfo, err := ioutil.ReadDir(filePath)
 			if err == nil {
@@ -257,7 +274,8 @@ func (w *TUIWidgetTree) printDir(p *tui.TUIPane, fs []os.FileInfo, rootPath stri
 	return cntDisplayed
 }
 
-// Run is main function which just prints out the current time.
+// Run is main function that opens root directory and calls the recursive print
+// function to print the directories on the stdout
 func (w *TUIWidgetTree) Run(p *tui.TUIPane) int {
 	fileInfo, err := ioutil.ReadDir(w.rootDir)
 	if err != nil {
