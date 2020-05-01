@@ -220,7 +220,7 @@ func (w *TUIWidgetTree) printDir(p *tui.TUIPane, fs []os.FileInfo, rootPath stri
 		fileName, filePath, fileDisplayName, fileCmp, fileMatchFilters := w.getFileDetails(file, rootPath, availableWidth, true)
 
 		// ignore files that do not match filter or should be hidden (hide files, show hidden, hide dirs etc.)
-		if !fileMatchFilters {
+		if !fileMatchFilters && fileCmp < 0 {
 			continue
 		}
 
