@@ -30,6 +30,12 @@ So, as you can see, working directory can be changed while the program is
 running. This is done with `ntree send`, eg. 
 `ntree send WORKDIR /Users/miko/Repos/gasiordev/`.
 
+On the screenshot next to filenames, you can spot numbers. Number on the left,
+like `(3)...`, indicates that there are 3 items before which are not shown,
+and number on the right like `...(5)` tells us that there are 5 items after
+which are not shown. Items can be hidden because they do not fit on the
+terminal. Also, the priority is to show contents of working directory. So if
+necessary, any directories along the path are partly hidden. 
 
 ## Configuration
 Before you start ntree, copy `sampleconfig.json` to your home directory as
