@@ -196,7 +196,7 @@ func (w *TUIWidgetTree) printDir(p *tui.TUIPane, fs []os.FileInfo, rootPath stri
 
 	depthCountSum := 0
 	if depth < maxDepth {
-		for j := depth+1; j <= maxDepth; j++ {
+		for j := depth + 1; j <= maxDepth; j++ {
 			depthCountSum += depthCounts[j]
 		}
 	}
@@ -234,7 +234,7 @@ func (w *TUIWidgetTree) printDir(p *tui.TUIPane, fs []os.FileInfo, rootPath stri
 					cntDisplayed++
 					cntAfter++
 				} else {
-					if cntDisplayed + depthCountSum < availableHeight {
+					if cntDisplayed+depthCountSum < availableHeight {
 						p.Write(0, cntDisplayed, strings.Repeat(" ", depth)+fileDisplayName, false)
 						cntDisplayed++
 						cntBefore++
