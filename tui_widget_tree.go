@@ -205,6 +205,7 @@ func (w *TUIWidgetTree) printDir(p *tui.TUIPane, fs []os.FileInfo, rootPath stri
 	cntBefore := 0
 	cntAfter := 0
 
+	j := 0
 	for i, file := range fs {
 		fileName, filePath, fileDisplayName, fileCmp, fileMatchFilters := w.getFileDetails(file, rootPath, availableWidth, true)
 
@@ -221,8 +222,8 @@ func (w *TUIWidgetTree) printDir(p *tui.TUIPane, fs []os.FileInfo, rootPath stri
 		} else {
 			if cntDisplayed < availableHeight {
 				if workDirOpened || fileCmp > -1 {
-					if fileCmp > -1 && cntBefore > 0 {
-						p.Write(0, cntDisplayed, strings.Repeat(" ", depth)+"("+strconv.Itoa(cntBefore)+")... "+fileDisplayName, false)
+					if fileCmp > -1 && j-cntBefore > 0 {
+						p.Write(0, cntDisplayed, strings.Repeat(" ", depth)+"("+strconv.Itoa(j-cntBefore)+")... "+fileDisplayName, false)
 					} else {
 						if cntDisplayed+1 == availableHeight && i+1 < len(fs) {
 							p.Write(0, cntDisplayed, strings.Repeat(" ", depth)+fileDisplayName+" ...("+strconv.Itoa(len(fs)-i-1)+")", false)
@@ -250,6 +251,8 @@ func (w *TUIWidgetTree) printDir(p *tui.TUIPane, fs []os.FileInfo, rootPath stri
 				workDirOpened = true
 			}
 		}
+
+		j++
 	}
 	return cntDisplayed
 }
