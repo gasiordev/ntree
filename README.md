@@ -9,10 +9,7 @@ Check the screenshot for the following command:
 ntree start -r /Users/miko -w /Users/miko/Repos/gasiordev/ntree
 ```
 
-![screenshot](ntree.png)
-
-Current working directory can be changed while the programming is running. This
-is done with `ntree send`, eg. `ntree send WORKDIR /Users/miko/Repos/gasiordev/`.
+[ntree screenshot](ntree.png)
 
 It was created to be used with tmux (or similar). You run ntree in a separate
 pane and it gets refreshed while you work on the terminal in other panes.
@@ -28,6 +25,11 @@ cd() {
   builtin cd $1;
 }
 ```
+
+So, as you can see, working directory can be changed while the program is 
+running. This is done with `ntree send`, eg. 
+`ntree send WORKDIR /Users/miko/Repos/gasiordev/`.
+
 
 ## Configuration
 Before you start ntree, copy `sampleconfig.json` to your home directory as
