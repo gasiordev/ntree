@@ -9,7 +9,7 @@ Check the screenshot for the following command:
 ntree start -r /Users/miko -w /Users/miko/Repos/gasiordev/ntree
 ```
 
-[ntree screenshot](ntree.png)
+![ntree screenshot](ntree.png)
 
 It was created to be used with tmux (or similar). You run ntree in a separate
 pane and it gets refreshed while you work on the terminal in other panes.
