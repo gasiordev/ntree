@@ -38,8 +38,8 @@ Before you start ntree, copy `sampleconfig.json` to your home directory as
 
 
 ## Commands
-In the above example, we mentioned that with `ntree send` you send any certain
-commands to ntree to modify the view.
+In the above example, we mentioned that with `ntree send` you order the program
+to change what's visible.
 
 The available commands are:
 * `ROOTDIR <value>` - change root directory;
