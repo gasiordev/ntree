@@ -11,8 +11,9 @@ ntree start -r /Users/miko -w /Users/miko/Repos/gasiordev/ntree
 
 ![ntree screenshot](ntree.png)
 
-It was created to be used with tmux (or similar). You run ntree in a separate
-pane and it gets refreshed while you work on the terminal in other panes.
+It was initially created for fun as I was playing with Go. It's meant to be
+used with tmux (or similar). You run ntree in a separate pane and it gets
+refreshed while you work on the terminal in other panes.
 For example, you can alias `cd` command in bash profile to automatically update
 ntree with the following code:
 
